@@ -1,0 +1,42 @@
+---
+title: "DataGeneration"
+author: "Marco Lee"
+date: "January 23, 2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#Create species object
+Species<- c("Attacus atlas", "Actias luna", "Plutella xylostella", "Adoxophyes honmai", "Lymantria dispar", "Bhutanitis lidderdalei", "Deramas livens", "Bombyx mori", "Manduca sexta", "Danaus plexippus")
+
+#Create limb width object
+Limb.Width<-rnorm(10, mean=10, sd=10)
+Limb.Width<-abs(Limb.Width)
+Limb.Width
+
+#Create UnitsW
+unitsW<- rbinom(10, size=1, prob=0.5)
+unitsW<-ifelse(unitsW==T, "cm", "mm")
+unitsW
+
+#Create Limb.Length
+Limb.Length<-rnorm(10, mean=100, sd=100)
+Limb.Length<-abs(Limb.Length)
+Limb.Length
+
+#Create UnitsL
+unitsL<- rbinom(10, size=1, prob=0.5)
+unitsL<-ifelse(unitsL==T, "cm", "mm")
+unitsL
+
+#Create data frame MyData
+MyData<-data.frame(Species, Limb.Width, unitsW, Limb.Length, unitsL)
+MyData
+
+#export data to csv
+getwd()
+write.csv(MyData, "Data/measurements.csv", row.names = F)
+
+```

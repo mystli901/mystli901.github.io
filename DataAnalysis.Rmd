@@ -1,0 +1,136 @@
+---
+title: "DataAnalysis"
+author: "Marco Lee"
+date: "January 23, 2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r, include=F}
+library(dplyr)
+library(ggplot2)
+```
+
+# Reading data from .csv file
+```{r}
+MData<-read.csv("Data/measurements.csv")
+str(MData)
+head(MData)
+```
+### Renaming columns for ease of coding
+```{r}
+MData<-rename(MData, spe = Species, lbW = Limb.Width, unW = unitsW, lbL = Limb.Length, unL = unitsL)
+```
+
+# Analysing data
+## Standardizing units
+Units are all converted to cm.
+```{r}
+for(i in 1:nrow(MData)){ #converting limb width
+  if(MData[i,]$unW == "mm"){
+    MData[i,]$lbW <- MData[i,]$lbW * 0.1
+    MData[i,]$unW <- "cm"
+  }
+}
+
+for(i in 1:nrow(MData)){ #converting limb length
+  if(MData[i,]$unL == "mm"){
+    MData[i,]$lbL <- MData[i,]$lbL * 0.1
+    MData[i,]$unL <- "cm"
+  }
+}
+str(MData)
+```
+
+## Calculating limb volume 
+Limb volume is calculated by assuming that limb is a cylinder with the width as diameter and the length as height. The formula used is pi* (r^2) * h. The unit is cm^3
+```{r}
+MData<-mutate(MData, 
+              lbV = pi*(lbW/2)^2*lbL)
+head(MData)
+```
+
+```{r, eval=F, include=F}
+#units not standardized in the data frame
+MData<-mutate(MData, 
+              lbV = ((lbW*ifelse(unW=="cm", 1, 0.1)/2)^2*pi)*
+                (lbL*ifelse(unL=="cm", 1, 0.1))) #if unit is mm, first multiply by 0.1 to convert to cm
+head(MData)
+```
+
+## Grouping species
+Species were grouped in moths or butterflies.
+```{r}
+MData$spe
+MData<- mutate(MData, grp=rep(NA, 10))
+MData$grp<- c(1,1,1,1,1,0,0,1,1,0)
+MData$grp<- ifelse(MData$grp==T, "Moth", "Butterfly")
+select(MData, spe, grp)
+```
+
+## Group dimensions
+Mean and standard deviation are calculated for width, length, and volume for each group.
+```{r}
+avg<-MData
+avg<- avg %>%
+  group_by(grp) %>%
+  summarize(meanW=mean(lbW), SDW=sd(lbW),
+           meanL=mean(lbL), SDL=sd(lbL),
+           meanV=mean(lbV), SDV=sd(lbV)) %>%
+  arrange(grp) #arrange in alphabetic order of group name
+avg
+```
+
+#Graphs
+Width is plotted against length of all species.
+```{r}
+ggplot(data=MData, aes(x=lbL, y=lbW)) +
+  geom_point(size=I(2))+
+  ylab("Limb width (cm)") +
+  xlab("Limb length (cm)") +
+  theme_classic() +
+  theme(axis.line=element_line(colour = 'black', size = 1.2),
+        axis.text=element_text(size=I(12), face="bold"),
+        axis.title=element_text(size=I(15), face="bold"),
+        plot.title=element_text(size=I(15), face="bold", hjust=0.5)) +
+  ggtitle("Correlation between limb width and length across species")
+```
+
+### Species with above average volume
+Only species with volume above the average of their respective group is included when graphing.
+First, a data frame "x" with only species that fitted the criteria  is created.
+```{r}
+x<-MData[(MData$grp == "Moth" & MData$lbV > as.integer(avg[2,6]))|
+           (MData$grp =="Butterfly" &MData$lbV > as.integer(avg[1,6])),]
+x
+```
+
+Then, a scatterplot with limb width against length is created with this set of data (species with above average limb volume)
+```{r}
+ggplot(data=x, aes(x=lbL, y=lbW)) +
+  geom_point(size=I(2))+
+  ylab("Limb width (cm)") +
+  xlab("Limb length (cm)") +
+  theme_classic() +
+  theme(axis.line=element_line(colour = 'black', size = 1.2),
+        axis.text=element_text(size=I(12), face="bold"),
+        axis.title=element_text(size=I(15), face="bold"),
+        plot.title=element_text(size=I(15), face="bold", hjust=0.5)) +
+  ggtitle("Correlation between limb width and length\nacross species with above average volume")
+```
+
+### Species with below average limb volume
+The volume of species with volume below the average of their respective group is displayed in a table.
+
+First, a data frame "y" with only species that fitted the criteria  is created.
+```{r}
+y<-MData[(MData$grp == "Moth" & MData$lbV < as.integer(avg[2,6]))|
+           (MData$grp =="Butterfly" &MData$lbV < as.integer(avg[1,6])),]
+```
+
+Then, the columns species and limb volumn are selected and displayed.
+```{r}
+z<-select(MData, spe, lbV)
+z<-rename(z, Species=spe, Limb.Volume=lbV) #renaming columns
+z
+```
