@@ -1,0 +1,32 @@
+---
+title: "Regex"
+author: "Marco Lee"
+date: "January 29, 2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Load dplyr package
+```{r}
+library(dplyr)
+```
+
+# Read measurement file
+```{r}
+MData<- read.csv("Data/measurements.csv")
+head(MData)
+```
+
+# Add new column
+Create new column Sp with abbreviated species name.
+```{r}
+MData<- mutate(MData, Sp = sub("(\\w)(\\w+)", "\\1.", Species))
+MData
+```
+
+# Create a new dataset
+Create new dataset with Sp (abbreviated species name) instead of Species (entire species name)
+```{r}
+MData2<- select(MData, Sp, everything(), -Species)
+MData2
+```
