@@ -390,6 +390,7 @@ str(MData)</code></pre>
 ## 6 Bhutanitis lidderdalei  10.296228     cm   69.568396     cm</code></pre>
 <div id="renaming-columns-for-ease-of-coding" class="section level3">
 <h3>Renaming columns for ease of coding</h3>
+<p>Column names are abbreviated.</p>
 <pre class="r"><code>MData&lt;-rename(MData, spe = Species, lbW = Limb.Width, unW = unitsW, lbL = Limb.Length, unL = unitsL)</code></pre>
 </div>
 </div>
@@ -514,7 +515,7 @@ x</code></pre>
 <p>First, a data frame “y” with only species that fitted the criteria is created.</p>
 <pre class="r"><code>y&lt;-MData[(MData$grp == &quot;Moth&quot; &amp; MData$lbV &lt; as.integer(avg[2,6]))|
            (MData$grp ==&quot;Butterfly&quot; &amp;MData$lbV &lt; as.integer(avg[1,6])),]</code></pre>
-<p>Then, the columns species and limb volumn are selected and displayed.</p>
+<p>Then, the columns “species”&quot; and “limb” volumn are selected and displayed.</p>
 <pre class="r"><code>z&lt;-select(MData, spe, lbV)
 z&lt;-rename(z, Species=spe, Limb.Volume=lbV) #renaming columns
 z</code></pre>

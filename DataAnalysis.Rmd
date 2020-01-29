@@ -18,6 +18,7 @@ str(MData)
 head(MData)
 ```
 ### Renaming columns for ease of coding
+Column names are abbreviated.
 ```{r}
 MData<-rename(MData, spe = Species, lbW = Limb.Width, unW = unitsW, lbL = Limb.Length, unL = unitsL)
 ```
@@ -128,7 +129,7 @@ y<-MData[(MData$grp == "Moth" & MData$lbV < as.integer(avg[2,6]))|
            (MData$grp =="Butterfly" &MData$lbV < as.integer(avg[1,6])),]
 ```
 
-Then, the columns species and limb volumn are selected and displayed.
+Then, the columns "species"" and "limb" volumn are selected and displayed.
 ```{r}
 z<-select(MData, spe, lbV)
 z<-rename(z, Species=spe, Limb.Volume=lbV) #renaming columns
